@@ -1,0 +1,13 @@
+altgraph==0.17.4
+applescript==2021.2.9
+macholib==1.16.3
+modulegraph==0.19.6
+osascript==2020.12.3
+packaging==24.2
+psutil==6.1.0
+py2app==0.28.8
+pyobjc-core==10.3.1
+pyobjc-framework-Cocoa==10.3.1
+rumps==0.4.0
+runcmd==2020.12.3
+setuptools==75.3.0
