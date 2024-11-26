@@ -2,7 +2,10 @@ from setuptools import setup
 
 APP = ['soundBo.py']
 
-DATA_FILES = []
+DATA_FILES = [
+    ('sounds', ['curb.mp3', 'sax.mp3', 'yeah.mp3']),
+    ('', ['icon.png']),
+    ]
 
 
 
@@ -13,9 +16,9 @@ OPTIONS = {
     'plist': {
         'LSUIElement': True,
     },
-    'packages': ['rumps', 'pygame', 'osascript'],
-    'includes': ['rumps', 'pygame', 'osascript'],
-    'resources': ['sounds/curb.mp3', 'sounds/sax.mp3', 'sounds/yeah.mp3', 'icon.png'], 
+    'packages': ['rumps', 'pygame', 'osascript', 'tkinter', 'shutil'],
+    'includes': ['rumps', 'pygame', 'osascript', 'tkinter', 'shutil'],
+    'resources': DATA_FILES, 
     'site_packages': True,
 }
 
