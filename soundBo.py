@@ -1,187 +1,144 @@
 import rumps, time, osascript, shutil, os
-import tkinter as tk
+from tkinter import filedialog, Tk
 from os.path import isfile, join
-from tkinter import filedialog
 from pygame import mixer
 
 APP_NAME = "soundBo"
 DEFAULT_VOL = 30
 
-# add close app button
-# allow user to remove sounds
+# List of special clickable functions in the menu
+CLICKFUNCTS = ["+ Add Sound"]
 
-class soundOption():
+
+
+# add the ability to quit app
+# test .app - ability, probably the files are gonna be screwed up
+
+
+
+# Sound option class
+class SoundOption:
     def __init__(self, name: str, path: str, menu: rumps.MenuItem = None):
         self.name = name
         self.path = path
         self.menu = menu
         self.fileType = ".mp3"
 
-    def getName(self):
-        return self.name
+    def play(self, volume: int = DEFAULT_VOL, time_duration: int = None, fade: int = 0):
+        play_sound(self.path, self.name, volume, time_duration, fade)
 
-    def play(self, volume: int = DEFAULT_VOL, timeduration: int = None, fade: int = 0):
-        playSound(self.path, self.name, volume, timeduration, fade)
+    def delete_self(self):
+        remove_file(self.name)
+        SoundBo.refresh_menu()
 
-    def deleteSelf(self):
-        
-        print(self.menu)
-        if self.name in self.menu:
-            self.menu.pop(self.name)
-        else:
-            print(f"Menu item for {self.name} not found.")
-        
-        removeFile(self.name)
-    
-
-def playSound(pathToSound: str, name: str, volume: int = DEFAULT_VOL, timeDuration: float = None, fade: int = 0):
-    '''
-    Play sound until stopped. Current system volume will be restored after sound is stopped.
-
-    Parameters :
-
-    pathToSound: In-app path to the sound, should always be within the /sounds folder.
-
-    name: Name of sound within the rumps app GUI.
-
-    volume: 0-100 volume to play sound at. Defaults to 100.
-
-    timeDuration: Time to wait before automatically stopping sound. If not set, sound will stop playing when window is closed.
-
-    fade: pygame.mixer fade effect.
-    '''
-
-    code, pastvol, err = osascript.run("output volume of (get volume settings)")
+# Utility functions
+def play_sound(path_to_sound: str, name: str, volume: int = DEFAULT_VOL, time_duration: float = None, fade: int = 0):
+    code, past_vol, err = osascript.run("output volume of (get volume settings)")
     osascript.run(f"set volume output volume {volume}")
 
     mixer.init()
-    mixer.music.load(pathToSound)
-    mixer.music.play(fade_ms = fade)
+    mixer.music.load(path_to_sound)
+    mixer.music.play(fade_ms=fade)
 
-    if timeDuration:
-        time.sleep(timeDuration)
+    if time_duration:
+        time.sleep(time_duration)
         mixer.music.stop()
     else:
-        rumps.alert(f"Playing {name}...", ok="Stop", icon_path="icon.png") # pauses program until alert is closed
+        rumps.alert(f"Playing {name}...", ok="Stop")  # pauses program until alert is closed
 
-
-    # after the alert is closed
+    # After the alert is closed
     mixer.music.stop()
+    osascript.run(f"set volume output volume {past_vol}")
 
-    osascript.run(f"set volume output volume {pastvol}")
-
-
-def uploadMP3File() -> str:
-    '''
-    Opens finder window for file selection, only allowing
-    the selection of .mp3 files. 
-    
-    Returns filepath.
-    '''
-
-    root=tk.Tk()
+def upload_mp3_file() -> str:
+    root = Tk()
     root.withdraw()
-
     root.lift()
     root.attributes("-topmost", True)
 
-    filePath = filedialog.askopenfilename(
-        title = "Select a .mp3 file, or drag-and-drop one into this window!",
-        filetypes = [("MP3 Files", "*.mp3")]
-        )
-    
+    file_path = filedialog.askopenfilename(
+        title="Select a .mp3 file",
+        filetypes=[("MP3 Files", "*.mp3")]
+    )
     root.destroy()
-    # make sure the window is closed
+    return file_path
 
-    return filePath
-    
-def removeFile(soundName: str):
-    filePath = f"sounds/{soundName}.mp3"
-
-    if os.path.exists(filePath):
-        os.remove(filePath)
-        print(f"{filePath} has been deleted.")
+def remove_file(sound_name: str):
+    file_path = f"sounds/{sound_name}.mp3"
+    if os.path.exists(file_path):
+        os.remove(file_path)
     else:
-        print(f"{filePath} does not exist.")
+        print(f"ERROR - UNHANDLED DELETION: {file_path} does not exist.")
 
-def addSound(soundName: str, initing: bool = False):
+def add_sound(sound_name: str, initing: bool = False):
+    new_path = f"sounds/{sound_name}.mp3"
 
-    newpath = f"sounds/{soundName}.mp3"
+    if not initing:
+        source_path = upload_mp3_file()
+        shutil.copyfile(source_path, new_path)
 
-    if initing:
-        print("initalizing file " + soundName)
-    else:
-        path = uploadMP3File()
+    new_sound = SoundOption(sound_name, new_path)
+    sound_menu = rumps.MenuItem(title=new_sound.name)
 
-        shutil.copyfile(path, newpath)
+    play_button = rumps.MenuItem(title="Play", callback=lambda _: new_sound.play())
+    delete_button = rumps.MenuItem(title="Delete", callback=lambda _: new_sound.delete_self())
 
-    newSound = soundOption(soundName, newpath)
+    sound_menu.add(play_button)
+    sound_menu.add(delete_button)
 
-    # Create a submenu for each sound
-    soundMenu = rumps.MenuItem(title=newSound.name)
+    new_sound.menu = sound_menu
+    return sound_menu
 
-    # Add play and delete options to the submenu
-    playButton = rumps.MenuItem(title="Play", callback=lambda _: newSound.play())
-    deleteButton = rumps.MenuItem(title="Delete", callback=lambda _: newSound.deleteSelf())
+def init_sound_menu(app_instance):
+    for item in list(app_instance.menu.keys()):
+        if item not in CLICKFUNCTS:
+            del app_instance.menu[item]
 
-    soundMenu.add(playButton)
-    soundMenu.add(deleteButton)
-
-    
-    newSound.menu = soundMenu
-    return soundMenu
-
+    # Add existing sounds to the menu
+    starter_sounds = [f for f in os.listdir("sounds") if isfile(join("sounds", f))]
+    for sound in starter_sounds:
+        name = sound.split(".")[0]
+        app_instance.menu.add(add_sound(name, initing=True))
 
 
-def buttonClicked(sound: soundOption):
-    sound.play()
 
-class soundBo(rumps.App):
+# Main app class
+class SoundBo(rumps.App):
+    instance = None  # Class-level reference to the singleton instance
+
     def __init__(self):
-        super(soundBo, self).__init__(name=APP_NAME, icon='icon.png', quit_button=None)
+        super(SoundBo, self).__init__(name=APP_NAME, icon='icon.png', quit_button=None)
+        SoundBo.instance = self
+        self.refresh_menu()
 
-
-        # initate any sound effects that are already in the sounds file
-        starterSounds = [f for f in os.listdir("sounds") if isfile(join("sounds", f))]  
-        
-
-        for sound in starterSounds:
-            name = sound.split(".")[0]
-
-            self.menu.add(addSound(soundName=name, initing=True))
-
-            '''newsound = soundOption(
-                    name = name,
-                    path = f"sounds/{sound}"
-                    )
-            
-            def create_button_callback(sound_instance):
-
-                return lambda _: buttonClicked(sound_instance)
-            
-            fileButton = rumps.MenuItem(title = newsound.getName(), callback=create_button_callback(newsound))
-            self.menu.add(fileButton)'''
-            
+    @staticmethod
+    def refresh_menu():
+        if SoundBo.instance:
+            init_sound_menu(SoundBo.instance)
 
     @rumps.clicked("+ Add Sound")
-    def clickAddSound(self, _):
+    def click_add_sound(self, _):
+        sound_name = "bingus"  # Replace with input logic if needed
+        add_sound(sound_name)
+        self.refresh_menu()
 
-        ###TEST CODE EDIT WHEN DONE###
-        soundName = "bingus"
-        ###TEST CODE EDIT WHEN DONE###
+    @rumps.clicked("Remove App")
+    def removeApp(self, _):
+
+        kill = rumps.alert(title="Remove App?", message="Are you sure you want to remove this app?", ok="Keep", cancel="Remove", icon_path="logo.icns")
+
+        if kill == 0:
+            kill = rumps.alert(title="Remove App?", message="Are you extra-super-sure?", ok="no...", cancel="YES!", icon_path="logo.icns")
+
+            if kill == 0:
+                rumps.quit_application()
+
         
-        fileButton = addSound(soundName)
-        self.menu.add(fileButton)
-
-    
-
 
 
 if __name__ == "__main__":
-
-    filePath = filedialog.askopenfilename(
-            title = "Select any file...",
-            )
-    
-
-    soundBo().run()
+    file_path = filedialog.askopenfilename(
+        title="CLICK CANCEL!! CLOSE THIS WINDOW!!",
+        filetypes=[("Bingus Files", "*.bingus")]
+    )
+    SoundBo().run()
