@@ -12,7 +12,7 @@ CLICKFUNCTS = ["+ Add Sound", "Remove App"]
 
 
 # test .app - ability, probably the files are gonna be screwed up
-
+# move code files to .src
 
 
 # Sound option class

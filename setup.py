@@ -3,7 +3,7 @@ from setuptools import setup
 APP = ['soundBo.py']
 
 DATA_FILES = [
-    ('sounds', ['curb.mp3', 'sax.mp3', 'yeah.mp3']),
+    ('sounds', ['sounds/curb.mp3', 'sounds/sax.mp3', 'sounds/yeah.mp3']),
     ('', ['icon.png']),
     ]
 
