@@ -7,11 +7,10 @@ APP_NAME = "soundBo"
 DEFAULT_VOL = 30
 
 # List of special clickable functions in the menu
-CLICKFUNCTS = ["+ Add Sound"]
+CLICKFUNCTS = ["+ Add Sound", "Remove App"]
 
 
 
-# add the ability to quit app
 # test .app - ability, probably the files are gonna be screwed up
 
 
@@ -75,7 +74,9 @@ def add_sound(sound_name: str, initing: bool = False):
 
     if not initing:
         source_path = upload_mp3_file()
-        shutil.copyfile(source_path, new_path)
+        new_path = source_path.split("/")
+        shutil.copyfile(source_path, f"sounds/{new_path[len(new_path)-1]}")
+        print(new_path)
 
     new_sound = SoundOption(sound_name, new_path)
     sound_menu = rumps.MenuItem(title=new_sound.name)
@@ -118,7 +119,7 @@ class SoundBo(rumps.App):
 
     @rumps.clicked("+ Add Sound")
     def click_add_sound(self, _):
-        sound_name = "bingus"  # Replace with input logic if needed
+        sound_name = "bingus"                           # Replace with input logic if needed
         add_sound(sound_name)
         self.refresh_menu()
 
