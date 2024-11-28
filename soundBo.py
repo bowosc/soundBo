@@ -4,15 +4,14 @@ from os.path import isfile, join
 from pygame import mixer
 
 APP_NAME = "soundBo"
-DEFAULT_VOL = 30
+DEFAULT_VOL = 100
 
-# List of special clickable functions in the menu
+# List of basic clickable functions in the menu
 CLICKFUNCTS = ["+ Add Sound", "Remove App"]
 
 
-
-# test .app - ability, probably the files are gonna be screwed up
-# move code files to .src
+# TODO
+# move pys to .src
 
 
 # Sound option class
@@ -32,6 +31,21 @@ class SoundOption:
 
 # Utility functions
 def play_sound(path_to_sound: str, name: str, volume: int = DEFAULT_VOL, time_duration: float = None, fade: int = 0):
+    '''
+    Play sound until stopped. Current system volume will be restored after sound is stopped.
+
+    Parameters :
+
+    pathToSound: In-app path to the sound, should always be within the /sounds folder.
+
+    name: Name of sound within the rumps app GUI.
+
+    volume: 0-100 volume to play sound at. Defaults to 100.
+
+    timeDuration: Time to wait before automatically stopping sound. If not set, sound will stop playing when window is closed.
+
+    fade: pygame.mixer fade effect.
+    '''
     code, past_vol, err = osascript.run("output volume of (get volume settings)")
     osascript.run(f"set volume output volume {volume}")
 
@@ -50,6 +64,10 @@ def play_sound(path_to_sound: str, name: str, volume: int = DEFAULT_VOL, time_du
     osascript.run(f"set volume output volume {past_vol}")
 
 def upload_mp3_file() -> str:
+    '''
+    Prompts user to select an mp3 file from the device, through the Finder window. 
+    Returns the path to the file selected.
+    '''
     root = Tk()
     root.withdraw()
     root.lift()
@@ -63,6 +81,11 @@ def upload_mp3_file() -> str:
     return file_path
 
 def remove_file(sound_name: str):
+    '''
+    Remove a sound file from the sounds directory. 
+
+    sound_name should be the word just after the final "/" but preceding ".mp3" on the file :)
+    '''
     file_path = f"sounds/{sound_name}.mp3"
     if os.path.exists(file_path):
         os.remove(file_path)
@@ -70,11 +93,24 @@ def remove_file(sound_name: str):
         print(f"ERROR - UNHANDLED DELETION: {file_path} does not exist.")
 
 def add_sound(sound_name: str, initing: bool = False):
-    new_path = f"sounds/{sound_name}.mp3"
+    '''
+    Prompts user to select an mp3 file to add to the menu.
+
+    Parameters:
+    sound_name (str) is the name of the sound file, and its name in the menu. 
+
+    initing (bool) should only be True if used while initiating the app (processing existing sound files).
+    '''
+
 
     if not initing:
         source_path = upload_mp3_file()
-        new_path = source_path.split("/")
+
+        if sound_name:
+            new_path = f"sounds/{sound_name}.mp3"
+        else:
+            new_path = source_path.split("/")
+
         shutil.copyfile(source_path, f"sounds/{new_path[len(new_path)-1]}")
         print(new_path)
 
@@ -91,6 +127,9 @@ def add_sound(sound_name: str, initing: bool = False):
     return sound_menu
 
 def init_sound_menu(app_instance):
+    '''
+    Essentially refreshes the menu bar list, adding a little entry for each sound that soundBo has an mp3 file for.
+    '''
     for item in list(app_instance.menu.keys()):
         if item not in CLICKFUNCTS:
             del app_instance.menu[item]
@@ -102,9 +141,10 @@ def init_sound_menu(app_instance):
         app_instance.menu.add(add_sound(name, initing=True))
 
 
-
-# Main app class
 class SoundBo(rumps.App):
+    '''
+    Main app class, manages menu bar options.
+    '''
     instance = None  # Class-level reference to the singleton instance
 
     def __init__(self):
@@ -119,8 +159,7 @@ class SoundBo(rumps.App):
 
     @rumps.clicked("+ Add Sound")
     def click_add_sound(self, _):
-        sound_name = "bingus"                           # Replace with input logic if needed
-        add_sound(sound_name)
+        add_sound()
         self.refresh_menu()
 
     @rumps.clicked("Remove App")
@@ -138,8 +177,13 @@ class SoundBo(rumps.App):
 
 
 if __name__ == "__main__":
+
+    # TESTING CODE
     file_path = filedialog.askopenfilename(
         title="CLICK CANCEL!! CLOSE THIS WINDOW!!",
         filetypes=[("Bingus Files", "*.bingus")]
     )
+    # REMOVE BEFORE PRODUCTION
+
+
     SoundBo().run()
