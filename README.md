@@ -8,7 +8,7 @@
   soundBo started when my roommates would not stop laughing at various stupid sound effects, but apparently had some trouble playing them at the worst possible times. 
 </p>
 <p>
-  The "Curb Your Enthusiasm" theme played after I fumble a question on a live Zoom interview apparently came several milliseconds later than they had liked.
+  According to some customer reports of competitor apps, the "Curb Your Enthusiasm" theme played after I fumble a question on a live Zoom interview apparently came several milliseconds later than they had liked.
 </p>
 <h3>Example</h3>
 <img width="459" alt="soundBo in the MacOS menu bar" src="https://github.com/user-attachments/assets/51af2531-6327-4224-85ab-6e39e15558a6"></br>
