@@ -21,7 +21,10 @@
 <p>
   The goal here is that only two clicks are necessary: the selection of the menu bar app and the play button on the sound. 
   By using the MacOS menu bar, we get around the delay caused by finding, clicking, and opening an application icon. </br>
-  This saves my roommates precious time while attempting to turn my day-to-day into a clip from a 2015 meme compilation.
+</p>
+<p>
+    This saves my roommates precious time while attempting to turn my day-to-day into a clip from a 2015 meme compilation.
+
 </p>
 </br></br></br></br></br></br></br>
 <h3>_.-==-----------==[0]==-----------==-._</h3>
