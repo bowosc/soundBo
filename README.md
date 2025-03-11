@@ -21,14 +21,18 @@
 <p>
   The goal here is that only two clicks are necessary: the selection of the menu bar app and the play button on the sound. 
   By using the MacOS menu bar, we get around the delay caused by finding, clicking, and opening an application icon. </br>
-  This saves my roommates precious time while attempting to turn my day-to-day into a clip from a 2015 meme compilation.
+</p>
+<p>
+    This saves my roommates precious time while attempting to turn my day-to-day into a clip from a 2015 meme compilation.
+
 </p>
 </br></br></br></br></br></br></br>
 <h3>_.-==-----------==[0]==-----------==-._</h3>
 <h3>Release details</h3>
 <p>
-  Full .app releases for soundBo have been temporarily removed, but will be back up soon. </br>
-  Source code is still availible, of course, if you'd like to compile it yourself. :)
+  Full releases for soundBo have been temporarily removed, but will be back up soon. </br>
+  For now, the only available release is the incomplete but technically functional Beta version.
+  Source code is still availible for the full version, of course, if you'd like to compile it yourself. :)
 </p>
 <h3>‾˙-==-----------==[0]==-----------==-˙‾</h3>
 
